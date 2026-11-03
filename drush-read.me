@@ -1,0 +1,74 @@
+# Drupal configuration management with Drush
+
+Drupal's configuration sync directory is `config/sync` at the project root.
+The local `web/sites/default/settings.php` points Drupal to this directory.
+The settings file is intentionally ignored by Git because it can contain
+machine-specific database credentials.
+
+## First-time local setup
+
+After creating `web/sites/default/settings.php` from
+`web/sites/default/default.settings.php` (if needed), add this setting to the
+local settings file. Do not replace an existing settings file, since it may
+already contain this environment's database credentials:
+
+```php
+$settings['config_sync_directory'] = '../config/sync';
+```
+
+The path is relative to Drupal's `web/` directory. Each developer must set it
+in their own ignored `settings.php`.
+
+## Export the current site's configuration
+
+Run these commands from the project root in PowerShell. Use the PHP 8.3
+executable directly: `drush.bat` tries to launch through `sh`, which is not
+normally installed on Windows, and a plain `php` command may resolve to an
+older XAMPP installation.
+
+```powershell
+& 'C:\xampp83\php\php.exe' vendor\bin\drush.php status
+& 'C:\xampp83\php\php.exe' vendor\bin\drush.php config:status
+& 'C:\xampp83\php\php.exe' vendor\bin\drush.php config:export
+```
+
+If XAMPP is installed in another folder, replace `C:\xampp83\php\php.exe`
+with that installation's PHP 8.3 executable.
+
+`config:export` (alias `cex`) copies the active site's configuration from the
+database to YAML files in `config/sync`. It does not import configuration or
+delete or change Drupal content. Review the proposed export when Drush prompts
+for confirmation, then inspect the resulting files with `git status` and
+`git diff` before committing them. Do not use `--yes` unless you have reviewed
+the export and intend to proceed.
+
+The first export can create many YAML files because it records the site's
+current active configuration. Review those files before adding them to Git.
+The tracked `.gitkeep` only keeps the otherwise-empty sync directory present;
+it is harmless and can be removed after the first export.
+
+## On another environment
+
+After deploying the code and importing the database backup for that same site,
+review the differences first:
+
+```powershell
+& 'C:\xampp83\php\php.exe' vendor\bin\drush.php config:status
+```
+
+Only when you intentionally want the YAML in `config/sync` to replace the
+active site's configuration, run:
+
+```powershell
+& 'C:\xampp83\php\php.exe' vendor\bin\drush.php config:import
+```
+
+`config:import` (alias `cim`) changes active configuration in the database.
+Do not run it as part of the export workflow or without reviewing the changes.
+
+## Git safety
+
+The root `.gitignore` keeps `vendor/`, Drupal core and contributed code,
+generated site files, local `settings.php`/`services.yml`, environment secrets,
+and common SQL/database dumps out of Git. Custom project code and reviewed
+configuration YAML under `config/sync` remain eligible for version control.

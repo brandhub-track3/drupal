@@ -16,9 +16,17 @@
 /web/sites/*/services.yml
 
 # Local environment files and secrets.
-/.env
-/.env.*
-!/.env.example
+.env
+.env.*
+!.env.example
+
+# Local database dumps and SQLite databases.
+*.sql
+*.sql.gz
+*.dump
+*.dump.gz
+*.sqlite
+*.sqlite3
 
 # Local tooling, operating-system files, and test output.
 /.idea/
