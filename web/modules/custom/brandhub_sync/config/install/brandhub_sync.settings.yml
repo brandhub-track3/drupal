@@ -1,0 +1,9 @@
+aws_region: ap-south-1
+aws_profile: ''
+sqs_queue_url: https://sqs.ap-south-1.amazonaws.com/096426373656/content-sqs
+diagnostics_enabled: false
+claim_check_enabled: false
+environment: local
+s3_bucket: ''
+s3_region: ''
+s3_endpoint: ''

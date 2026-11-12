@@ -1,0 +1,265 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://brandhub.example/schemas/unified-content.schema.json",
+  "title": "Unified content record",
+  "description": "Normalized content record mapped from a Drupal node.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "url",
+    "source",
+    "type",
+    "title",
+    "summary",
+    "bodyHtml",
+    "plainText",
+    "tags",
+    "product",
+    "author",
+    "heroImage",
+    "publishedAt",
+    "updatedAt",
+    "version",
+    "hash",
+    "status",
+    "schemaVersion"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^dr:[1-9][0-9]*$",
+      "description": "Drupal node ID prefixed with dr:."
+    },
+    "url": {
+      "type": "string",
+      "format": "uri",
+      "description": "Absolute canonical view URL of the Drupal node."
+    },
+    "source": {
+      "const": "drupal"
+    },
+    "type": {
+      "enum": ["product", "article", "faq"]
+    },
+    "title": {
+      "type": "string"
+    },
+    "summary": {
+      "type": "string",
+      "description": "Mapped Drupal summary, or trimmed plainText when that bundle has no summary or its summary is empty."
+    },
+    "bodyHtml": {
+      "type": ["string", "null"],
+      "default": null,
+      "description": "Rendered body markup; null when the bundle has no body field or the body is empty."
+    },
+    "plainText": {
+      "type": "string",
+      "description": "Trimmed plain text extracted from the mapped body; empty string when the body is missing."
+    },
+    "tags": {
+      "type": "array",
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/taxonomyTerm"
+      }
+    },
+    "product": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/taxonomyTerm"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Referenced term from the product vocabulary, or null when no product is selected."
+    },
+    "author": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/author"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "heroImage": {
+      "type": ["string", "null"],
+      "format": "uri",
+      "default": null,
+      "description": "Absolute URL of the hero image; null when the bundle has no hero-image field or no image is set."
+    },
+    "publishedAt": {
+      "type": ["string", "null"],
+      "format": "date-time",
+      "description": "Drupal created time for a published node; null when it has not been published or has no publication time."
+    },
+    "updatedAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Drupal changed time, serialized as an ISO 8601/RFC 3339 date-time."
+    },
+    "version": {
+      "type": ["integer", "null"],
+      "minimum": 1,
+      "description": "Drupal node revision ID, or null if no revision ID is available."
+    },
+    "hash": {
+      "type": ["string", "null"],
+      "pattern": "^[a-f0-9]{64}$",
+      "description": "Lowercase SHA-256 of JSON with recursively sorted object keys, preserved list order, and this hash property excluded; event payloads must contain a digest."
+    },
+    "status": {
+      "enum": ["published", "removed"],
+      "description": "published for a currently published node; removed only for an explicit deletion/tombstone event."
+    },
+    "schemaVersion": {
+      "const": "1.0"
+    }
+  },
+  "$defs": {
+    "contentChangedEvent": {
+      "description": "Event envelope with either inline content or an S3 claim-check pointer.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "event",
+        "eventId",
+        "occurredAt",
+        "correlationId",
+        "schemaVersion",
+        "source"
+      ],
+      "oneOf": [
+        {
+          "required": ["content"]
+        },
+        {
+          "required": ["claimCheck"]
+        }
+      ],
+      "properties": {
+        "event": {
+          "const": "content.changed"
+        },
+        "eventId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "occurredAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "correlationId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "schemaVersion": {
+          "const": "1.0"
+        },
+        "source": {
+          "const": "drupal"
+        },
+        "content": {
+          "allOf": [
+            {
+              "$ref": "#"
+            },
+            {
+              "properties": {
+                "hash": {
+                  "type": "string",
+                  "pattern": "^[a-f0-9]{64}$"
+                },
+                "version": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            }
+          ]
+        },
+        "claimCheck": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "bucket",
+            "objectKey",
+            "contentType",
+            "originalPayloadSize",
+            "sha256",
+            "schemaVersion"
+          ],
+          "properties": {
+            "bucket": {
+              "type": "string",
+              "minLength": 1
+            },
+            "objectKey": {
+              "type": "string",
+              "minLength": 1
+            },
+            "versionId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "etag": {
+              "type": "string",
+              "minLength": 1
+            },
+            "contentType": {
+              "const": "application/json"
+            },
+            "originalPayloadSize": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "sha256": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            "schemaVersion": {
+              "const": "1.0"
+            }
+          }
+        }
+      }
+    },
+    "taxonomyTerm": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "name"],
+      "properties": {
+        "id": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Drupal taxonomy term ID."
+        },
+        "name": {
+          "type": "string"
+        }
+      }
+    },
+    "author": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "name"],
+      "properties": {
+        "id": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Drupal user ID."
+        },
+        "name": {
+          "type": "string",
+          "description": "Drupal account name."
+        }
+      }
+    }
+  }
+}

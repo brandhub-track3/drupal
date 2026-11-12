@@ -1,0 +1,105 @@
+services:
+  brandhub_sync.diagnostics:
+    class: Drupal\brandhub_sync\Diagnostics\SyncDiagnostics
+    arguments:
+      - '@config.factory'
+      - '@logger.factory'
+
+  brandhub_sync.mapper:
+    class: Drupal\brandhub_sync\Mapper\NodeToUnifiedContentMapper
+    arguments:
+      - '@renderer'
+      - '@file_url_generator'
+      - '@entity_type.manager'
+      - '@brandhub_sync.content_hasher'
+
+  brandhub_sync.content_hasher:
+    class: Drupal\brandhub_sync\Mapper\ContentHasher
+
+  brandhub_sync.moderation_status_resolver:
+    class: Drupal\brandhub_sync\Moderation\ModerationStatusResolver
+
+  brandhub_sync.content_change_decider:
+    class: Drupal\brandhub_sync\Moderation\ContentChangeDecider
+    arguments:
+      - '@brandhub_sync.moderation_status_resolver'
+
+  brandhub_sync.entity_change_handler:
+    class: Drupal\brandhub_sync\Handler\EntityChangeHandler
+    arguments:
+      - '@brandhub_sync.mapper'
+      - '@brandhub_sync.content_change_decider'
+      - '@brandhub_sync.content_changed_event_factory'
+      - '@brandhub_sync.publisher'
+
+  brandhub_sync.resync_service:
+    class: Drupal\brandhub_sync\Resync\ContentResyncService
+    arguments:
+      - '@entity_type.manager'
+      - '@brandhub_sync.mapper'
+      - '@brandhub_sync.moderation_status_resolver'
+      - '@brandhub_sync.content_changed_event_factory'
+      - '@brandhub_sync.publisher'
+      - '@logger.factory'
+
+  brandhub_sync.seed_generator:
+    class: Drupal\brandhub_sync\Seed\SeedContentGenerator
+
+  brandhub_sync.seed_context:
+    class: Drupal\brandhub_sync\Seed\SeedExecutionContext
+
+  brandhub_sync.seed_service:
+    class: Drupal\brandhub_sync\Seed\SeedContentService
+    arguments:
+      - '@entity_type.manager'
+      - '@entity_field.manager'
+      - '@account_switcher'
+      - '@state'
+      - '@brandhub_sync.seed_generator'
+      - '@brandhub_sync.seed_context'
+      - '@logger.factory'
+
+  brandhub_sync.content_changed_event_factory:
+    class: Drupal\brandhub_sync\Publisher\ContentChangedEventFactory
+    arguments:
+      - '@uuid'
+      - '@datetime.time'
+
+  brandhub_sync.publisher.fake:
+    class: Drupal\brandhub_sync\Publisher\FakePublisher
+
+  brandhub_sync.claim_check_storage.fake:
+    class: Drupal\brandhub_sync\Publisher\FakeClaimCheckStorage
+
+  brandhub_sync.claim_check_storage.s3:
+    class: Drupal\brandhub_sync\Publisher\S3ClaimCheckStorage
+    arguments:
+      - '@config.factory'
+
+  brandhub_sync.claim_check_message_processor:
+    class: Drupal\brandhub_sync\Publisher\ClaimCheckMessageProcessor
+    arguments:
+      - '@brandhub_sync.publisher.transport'
+      - '@brandhub_sync.claim_check_storage'
+      - '@config.factory'
+
+  brandhub_sync.claim_check_storage:
+    alias: brandhub_sync.claim_check_storage.s3
+
+  brandhub_sync.sqs_client_factory:
+    class: Drupal\brandhub_sync\Publisher\SqsClientFactory
+    arguments:
+      - '@config.factory'
+
+  brandhub_sync.publisher.sqs:
+    class: Drupal\brandhub_sync\Publisher\SqsPublisher
+    arguments:
+      - '@brandhub_sync.sqs_client_factory'
+      - '@config.factory'
+      - '@brandhub_sync.diagnostics'
+
+  brandhub_sync.publisher.transport:
+    alias: brandhub_sync.publisher.sqs
+
+  brandhub_sync.publisher:
+    alias: brandhub_sync.claim_check_message_processor

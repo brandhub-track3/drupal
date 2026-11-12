@@ -1,0 +1,34 @@
+brandhub_sync.settings:
+  type: config_object
+  label: 'BrandHub Sync settings'
+  mapping:
+    aws_region:
+      type: string
+      label: 'AWS region'
+    aws_profile:
+      type: string
+      label: 'AWS shared credentials profile'
+    sqs_queue_url:
+      type: string
+      label: 'SQS queue URL'
+    diagnostics_enabled:
+      type: boolean
+      label: 'Enable credential-safe BrandHub sync diagnostics'
+    claim_check_enabled:
+      type: boolean
+      label: 'Enable S3 claim-check delivery'
+    claim_check_threshold_bytes:
+      type: integer
+      label: 'Deprecated claim-check threshold (the module always uses 204800 bytes)'
+    environment:
+      type: string
+      label: 'Environment name used in claim-check object keys'
+    s3_bucket:
+      type: string
+      label: 'Private S3 claim-check bucket'
+    s3_region:
+      type: string
+      label: 'S3 region'
+    s3_endpoint:
+      type: string
+      label: 'Optional S3-compatible endpoint'

@@ -1,0 +1,28 @@
+{
+  "id": "dr:303",
+  "url": "https://example.test/node/303",
+  "source": "drupal",
+  "type": "faq",
+  "title": "Example FAQ",
+  "summary": "The answer to this frequently asked question.",
+  "bodyHtml": "<p>The answer to this frequently asked question.</p>",
+  "plainText": "The answer to this frequently asked question.",
+  "tags": [
+    {
+      "id": 15,
+      "name": "Getting started"
+    }
+  ],
+  "product": null,
+  "author": {
+    "id": 1,
+    "name": "site-editor"
+  },
+  "heroImage": null,
+  "publishedAt": "2026-04-10T08:15:00+00:00",
+  "updatedAt": "2026-04-10T08:15:00+00:00",
+  "version": 1,
+  "hash": null,
+  "status": "published",
+  "schemaVersion": "1.0"
+}

@@ -1,0 +1,23 @@
+{
+  "id": "dr:202",
+  "url": "https://example.test/node/202",
+  "source": "drupal",
+  "type": "article",
+  "title": "Example Article",
+  "summary": "A short article summary.",
+  "bodyHtml": "<p>The full text of the example article.</p>",
+  "plainText": "The full text of the example article.",
+  "tags": [],
+  "product": null,
+  "author": {
+    "id": 2,
+    "name": "content-author"
+  },
+  "heroImage": "https://example.test/sites/default/files/example-article.jpg",
+  "publishedAt": "2026-03-02T09:00:00+00:00",
+  "updatedAt": "2026-03-04T11:45:00+00:00",
+  "version": 5,
+  "hash": null,
+  "status": "published",
+  "schemaVersion": "1.0"
+}

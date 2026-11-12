@@ -1,0 +1,52 @@
+<?php
+
+/**
+ * @file
+ * Minimal entity lifecycle adapters for BrandHub Sync.
+ */
+
+/**
+ * Implements hook_entity_insert().
+ */
+function brandhub_sync_entity_insert(
+  \Drupal\Core\Entity\EntityInterface $entity,
+): void {
+  if (\Drupal::service('brandhub_sync.seed_context')->isActive()) {
+    return;
+  }
+  if ($entity instanceof \Drupal\node\NodeInterface) {
+    \Drupal::service('brandhub_sync.entity_change_handler')->insert($entity);
+  }
+}
+
+/**
+ * Implements hook_entity_update().
+ */
+function brandhub_sync_entity_update(
+  \Drupal\Core\Entity\EntityInterface $entity,
+): void {
+  if (\Drupal::service('brandhub_sync.seed_context')->isActive()) {
+    return;
+  }
+  if ($entity instanceof \Drupal\node\NodeInterface) {
+    $original = $entity->original ?? NULL;
+    \Drupal::service('brandhub_sync.entity_change_handler')->update(
+      $entity,
+      $original instanceof \Drupal\node\NodeInterface ? $original : NULL,
+    );
+  }
+}
+
+/**
+ * Implements hook_entity_delete().
+ */
+function brandhub_sync_entity_delete(
+  \Drupal\Core\Entity\EntityInterface $entity,
+): void {
+  if (\Drupal::service('brandhub_sync.seed_context')->isActive()) {
+    return;
+  }
+  if ($entity instanceof \Drupal\node\NodeInterface) {
+    \Drupal::service('brandhub_sync.entity_change_handler')->delete($entity);
+  }
+}

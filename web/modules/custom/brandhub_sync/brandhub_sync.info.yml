@@ -1,0 +1,7 @@
+name: BrandHub Sync
+type: module
+description: Maps published BrandHub content to the unified content schema.
+package: Custom
+core_version_requirement: ^11
+dependencies:
+  - drupal:node

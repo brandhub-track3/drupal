@@ -1,0 +1,31 @@
+{
+  "id": "dr:101",
+  "url": "https://example.test/node/101",
+  "source": "drupal",
+  "type": "product",
+  "title": "Example Product",
+  "summary": "A concise product description.",
+  "bodyHtml": "<p>A longer description of the example product.</p>",
+  "plainText": "A longer description of the example product.",
+  "tags": [
+    {
+      "id": 12,
+      "name": "Example tag"
+    }
+  ],
+  "product": {
+    "id": 4,
+    "name": "Example product category"
+  },
+  "author": {
+    "id": 1,
+    "name": "site-editor"
+  },
+  "heroImage": "https://example.test/sites/default/files/example-product.jpg",
+  "publishedAt": "2026-01-15T10:30:00+00:00",
+  "updatedAt": "2026-02-01T14:05:00+00:00",
+  "version": 3,
+  "hash": null,
+  "status": "published",
+  "schemaVersion": "1.0"
+}

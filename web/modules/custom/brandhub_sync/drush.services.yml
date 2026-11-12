@@ -1,0 +1,21 @@
+services:
+  brandhub_sync.commands.resync:
+    class: Drupal\brandhub_sync\Drush\Commands\BrandhubResyncCommands
+    arguments:
+      - '@brandhub_sync.resync_service'
+    tags:
+      - { name: drush.command }
+
+  brandhub_sync.commands.seed:
+    class: Drupal\brandhub_sync\Drush\Commands\BrandhubSeedCommands
+    arguments:
+      - '@brandhub_sync.seed_service'
+    tags:
+      - { name: drush.command }
+
+  brandhub_sync.commands.media_config:
+    class: Drupal\brandhub_sync\Drush\Commands\BrandhubMediaConfigCommands
+    arguments:
+      - '@config.factory'
+    tags:
+      - { name: drush.command }

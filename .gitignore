@@ -13,7 +13,12 @@
 /web/sites/*/files/
 /web/sites/*/private/
 /web/sites/*/settings.php
+/web/sites/*/settings.local.php
 /web/sites/*/services.yml
+/web/sites/*/aws-credentials.ini
+/web/sites/*/credentials
+/.aws/
+/storage/
 
 # Local environment files and secrets.
 .env
@@ -36,4 +41,5 @@ desktop.ini
 *.log
 *.swp
 /.phpunit.cache/
+/.phpstan-cache/
 /coverage/
