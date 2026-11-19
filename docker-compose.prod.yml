@@ -10,7 +10,7 @@ services:
 
     container_name: brandhub-drupal
 
-    # EC2 restart hone par Drupal automatically restart hoga.
+    # EC2 restar hone par Drupal automatically restart hoga.
     restart: unless-stopped
 
     # EC2 port 8080 -> Drupal Apache container port 80
