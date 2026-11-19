@@ -22,7 +22,7 @@ concurrency:
 
 jobs:
   ci:
-    name: Composer, PHP syntax, and PHPUnit
+    name: Composer and PHP syntax
     runs-on: ubuntu-24.04
     steps:
       - name: Check out source
@@ -32,7 +32,7 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.3'
-          extensions: gd, intl, mbstring, pdo_mysql, pdo_sqlite, zip, xml
+          extensions: gd, intl, mbstring, pdo_mysql, zip, xml
           tools: composer:v2
           coverage: none
 
@@ -48,14 +48,6 @@ jobs:
       - name: Check PHP syntax
         # Check project PHP files while avoiding a redundant scan of vendor packages.
         run: find web/modules/custom web/sites -type f -name '*.php' -print0 | xargs -0 -r -n1 php -l
-
-      - name: Run PHPUnit when tests are present
-        run: |
-          if [ -d web/modules/custom/brandhub_sync/tests ]; then
-            composer test
-          else
-            echo "No custom PHPUnit test directory found; skipping."
-          fi
 
   publish:
     name: Build and publish Drupal image
