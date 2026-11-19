@@ -96,6 +96,8 @@ jobs:
       MYSQL_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
       MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}
       DRUPAL_HASH_SALT: ${{ secrets.DRUPAL_HASH_SALT }}
+      # Enable only after a complete, matching Drupal config export is committed.
+      DRUPAL_CONFIG_IMPORT: ${{ vars.DRUPAL_CONFIG_IMPORT }}
       DRUPAL_IMAGE: ghcr.io/${{ github.repository }}
       IMAGE_TAG: ${{ github.sha }}
     steps:
@@ -140,16 +142,25 @@ jobs:
           set -euo pipefail
           TARGET="${EC2_USER}@${EC2_HOST}"
           SSH_OPTS=(-i "$HOME/.ssh/deploy_key" -o UserKnownHostsFile="$HOME/.ssh/known_hosts" -o StrictHostKeyChecking=yes)
+          CONFIG_IMPORT_ENABLED=false
+          if [[ "${DRUPAL_CONFIG_IMPORT:-}" == "true" ]]; then
+            CONFIG_IMPORT_ENABLED=true
+          fi
 
           # GHCR is public, so EC2 pulls without registry credentials.
           # Compose uses the SHA-tagged image; --no-build prevents any EC2-side image build.
-          ssh "${SSH_OPTS[@]}" "$TARGET" '
+          ssh "${SSH_OPTS[@]}" "$TARGET" "CONFIG_IMPORT_ENABLED=$CONFIG_IMPORT_ENABLED bash -s" <<'REMOTE'
             set -e
             cd "$HOME/brandhub-drupal"
             docker compose -f docker-compose.prod.yml pull drupal
             docker compose -f docker-compose.prod.yml up -d --no-build
+            docker compose -f docker-compose.prod.yml exec -T drupal vendor/bin/drush pm:enable mysql -y
             docker compose -f docker-compose.prod.yml exec -T drupal vendor/bin/drush updatedb -y
-            docker compose -f docker-compose.prod.yml exec -T drupal vendor/bin/drush config:import -y
+            if [ "$CONFIG_IMPORT_ENABLED" = "true" ]; then
+              docker compose -f docker-compose.prod.yml exec -T drupal vendor/bin/drush config:import -y
+            else
+              echo "WARNING: Skipping config:import. Set the GitHub Actions variable DRUPAL_CONFIG_IMPORT=true only after a complete config/sync export matching this site is committed."
+            fi
             docker compose -f docker-compose.prod.yml exec -T drupal vendor/bin/drush cache:rebuild
             curl --fail --silent --show-error --retry 10 --retry-connrefused --retry-delay 5 http://127.0.0.1:8080/ >/dev/null
-          '
+          REMOTE
