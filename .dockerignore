@@ -1,0 +1,46 @@
+# Git history Docker image me required nahi
+.git
+
+# GitHub Actions configuration image ke andar required nahi
+.github
+
+# IDE/editor files
+.vscode
+.idea
+
+# Local environment variables/secrets Docker image me copy nahi karne
+.env
+.env.*
+
+# Example env safe hai, agar project me hai
+!.env.example
+
+# Local Composer vendor copy nahi karenge
+# Dockerfile composer install se fresh vendor banayega
+vendor
+
+# Node dependencies, agar Drupal theme/module me Node use ho raha hai
+node_modules
+
+# Drupal uploaded images/files image ka part nahi honge
+# EC2 par persistent Docker volume use karenge
+web/sites/default/files
+
+# Drupal temporary/private runtime data
+web/sites/simpletest
+
+# Local logs
+*.log
+
+# Database dump Docker image me nahi jana chahiye
+*.sql
+*.sql.gz
+
+# Backup/archive files
+*.zip
+*.tar
+*.tar.gz
+
+# OS generated files
+.DS_Store
+Thumbs.db

@@ -1,0 +1,111 @@
+services:
+
+  # =========================================================
+  # DRUPAL
+  # =========================================================
+  drupal:
+
+    # CI publishes this image to GHCR; IMAGE_TAG is the exact Git commit SHA.
+    image: ${DRUPAL_IMAGE:?Set DRUPAL_IMAGE}:${IMAGE_TAG:?Set IMAGE_TAG}
+
+    container_name: brandhub-drupal
+
+    # EC2 restart hone par Drupal automatically restart hoga.
+    restart: unless-stopped
+
+    # EC2 port 8080 -> Drupal Apache container port 80
+    ports:
+      - "8080:80"
+
+    # Drupal DB configuration.
+    # Actual values .env file se aayengi.
+    environment:
+      DRUPAL_DB_HOST: ${DRUPAL_DB_HOST:-mysql}
+      DRUPAL_DB_PORT: ${DRUPAL_DB_PORT:-3306}
+      DRUPAL_DB_NAME: ${MYSQL_DATABASE}
+      DRUPAL_DB_USER: ${MYSQL_USER}
+      DRUPAL_DB_PASSWORD: ${MYSQL_PASSWORD}
+      DRUPAL_HASH_SALT: ${DRUPAL_HASH_SALT}
+
+    # Drupal uploads ko container ke andar permanently mat rakho.
+    # Named Docker volume EC2 par data preserve karega.
+    volumes:
+      - drupal_files:/var/www/html/web/sites/default/files
+
+    # Drupal MySQL healthy hone ke baad start hoga.
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+    networks:
+      - brandhub-network
+
+
+  # =========================================================
+  # MYSQL DATABASE
+  # =========================================================
+  mysql:
+
+    # Official MySQL Docker image
+    image: mysql:8.4
+
+    container_name: brandhub-drupal-mysql
+
+    restart: unless-stopped
+
+    environment:
+
+      # Drupal database automatically create karega
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+
+      # Drupal ke liye dedicated MySQL user
+      MYSQL_USER: ${MYSQL_USER}
+
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+
+      # MySQL administrative/root password
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+
+    # MySQL ka actual database data EC2 volume me rahega.
+    #
+    # Container delete/recreate hone ke baad bhi DB safe rahega.
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+    # Check MySQL actually connections accept kar raha hai.
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "mysqladmin ping -h localhost -u root -p$$MYSQL_ROOT_PASSWORD"
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+    networks:
+      - brandhub-network
+
+
+# =========================================================
+# PERSISTENT EC2 DOCKER VOLUMES
+# =========================================================
+volumes:
+
+  # MySQL DB
+  mysql_data:
+    name: brandhub_drupal_mysql_data
+
+  # Drupal uploaded images/files
+  drupal_files:
+    name: brandhub_drupal_files
+
+
+# =========================================================
+# PRIVATE NETWORK
+# =========================================================
+networks:
+
+  brandhub-network:
+    name: brandhub-drupal-network
