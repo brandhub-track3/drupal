@@ -96,6 +96,10 @@ jobs:
       MYSQL_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
       MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}
       DRUPAL_HASH_SALT: ${{ secrets.DRUPAL_HASH_SALT }}
+
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
       # Enable only after a complete, matching Drupal config export is committed.
       DRUPAL_CONFIG_IMPORT: ${{ vars.DRUPAL_CONFIG_IMPORT }}
       DRUPAL_IMAGE: ghcr.io/${{ github.repository }}
@@ -131,6 +135,9 @@ jobs:
             "MYSQL_PASSWORD=$MYSQL_PASSWORD" \
             "MYSQL_ROOT_PASSWORD=$MYSQL_ROOT_PASSWORD" \
             "DRUPAL_HASH_SALT=$DRUPAL_HASH_SALT" \
+            "AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID" \
+            "AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY" \
+            "AWS_DEFAULT_REGION=$AWS_DEFAULT_REGION" \
             "DRUPAL_DB_HOST=mysql" \
             "DRUPAL_DB_PORT=3306" \
             "DRUPAL_IMAGE=$DRUPAL_IMAGE" \
