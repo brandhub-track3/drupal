@@ -9,7 +9,7 @@ on:
   push:
     branches:
       - main
-  # Allow an operator to rerun the pipeline from the main branch.
+  # Allow an operator to rern the pipeline from the main branch.
   workflow_dispatch:
 
 permissions:
